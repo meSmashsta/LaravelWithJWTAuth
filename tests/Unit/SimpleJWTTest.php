@@ -12,11 +12,19 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function testTokenValidity()
+    public function testAccessTokenValidity()
     {
         $jwt = new SimpleJWT();
-        $token = $jwt->issueToken(1);
+        $token = $jwt->issueAccessToken(1);
         $is_valid = $jwt->isValid($token);
+
+        $this->assertTrue($is_valid);
+    }
+
+    public function testRefreshTokenValidity() {
+        $jwt = new SimpleJWT();
+        $refresh_token = $jwt->issueRefreshToken();
+        $is_valid = $jwt->isValid($refresh_token);
 
         $this->assertTrue($is_valid);
     }

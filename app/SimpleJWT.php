@@ -28,16 +28,27 @@ class SimpleJWT implements JWT {
         );
     }
 
-    function issueToken(string $uid) {
+    function issueAccessToken(string $uid) {
         $now = new DateTimeImmutable();
         return $this->config->builder()
                     ->issuedBy($this->iss)
                     ->permittedFor($this->aud)
                     ->issuedAt($now)
                     ->canOnlyBeUsedAfter($now)
-                    ->expiresAt($now->modify('+1 hours'))
+                    ->expiresAt($now->modify('+1 day'))
                     ->withClaim('uid', $uid)
                     ->getToken($this->config->signer(), $this->config->signingKey());
+    }
+
+    function issueRefreshToken() {
+        $now = new DateTimeImmutable();
+        return $this->config->builder()
+                    ->issuedBy($this->iss)
+                    ->permittedFor($this->aud)
+                    ->issuedAt($now)
+                    ->canOnlyBeUsedAfter($now)
+                    ->expiresAt($now->modify('+7 days'))
+                    ->getToken($this->config->signer(), $this->config->signingKey());;
     }
 
     function isValid(Plain $token) {
