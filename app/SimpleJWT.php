@@ -4,11 +4,13 @@ namespace App;
 
 use DateTimeImmutable;
 use Lcobucci\JWT\Token\Plain;
+use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Illuminate\Support\Facades\Config;
-use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 
 class SimpleJWT implements JWT {
@@ -53,15 +55,11 @@ class SimpleJWT implements JWT {
 
     function isValid(Plain $token) {
         $constraints = $this->validationConstraints();
-        return ! $this->config->validator()->validate($token, ...$constraints) &&
-                ! $token->isExpired(new DateTimeImmutable());
+        return $this->config->validator()->validate($token, ...$constraints);
     }
 
     function parseToken(string $tokenString) {
-        $tokenString = explode('.', $tokenString);
-        $token = $this->config->parser()->parse(
-            "{$tokenString[0]}.{$tokenString[1]}.{$tokenString[2]}"
-        );
+        $token = $this->config->parser()->parse($tokenString);
         if ($token instanceof Plain) {
             return $token;
         }
@@ -70,8 +68,9 @@ class SimpleJWT implements JWT {
 
     private function validationConstraints() {
         return [
-            new IdentifiedBy($this->iss),
-            new PermittedFor($this->aud)
+            new IssuedBy($this->iss),
+            new PermittedFor($this->aud),
+            new LooseValidAt(SystemClock::fromUTC())
         ];
     }
 }
