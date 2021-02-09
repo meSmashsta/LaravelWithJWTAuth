@@ -2,11 +2,20 @@
 
 namespace Tests\Unit;
 
-use App\SimpleJWT;
+use App\JWT;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    private JWT $jwt;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        $this->jwt = $this->app->make('App\JWT');
+    }
+
     /**
      * Assert if token has valid iss, aud, and exp
      *
@@ -14,17 +23,15 @@ class ExampleTest extends TestCase
      */
     public function testAccessTokenValidity()
     {
-        $jwt = new SimpleJWT();
-        $token = $jwt->issueAccessToken(1);
-        $is_valid = $jwt->isValid($token);
+        $token = $this->jwt->issueAccessToken(1);
+        $is_valid = $this->jwt->isValid($token);
 
         $this->assertTrue($is_valid);
     }
 
     public function testRefreshTokenValidity() {
-        $jwt = new SimpleJWT();
-        $refresh_token = $jwt->issueRefreshToken();
-        $is_valid = $jwt->isValid($refresh_token);
+        $refresh_token = $this->jwt->issueRefreshToken();
+        $is_valid = $this->jwt->isValid($refresh_token);
 
         $this->assertTrue($is_valid);
     }
@@ -35,8 +42,7 @@ class ExampleTest extends TestCase
      * @return void
      */
     public function testTokenParser() {
-        $jwt = new SimpleJWT();
-        $token = $jwt->parseToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QuY29vbGNoYXQuY29tIiwiYXVkIjoiaHR0cHM6Ly90ZXN0LWF1dGguY29vbGNoYXQuY29tIiwiaWF0IjoiMTYxMDM1MTgyOC45ODMxNDAiLCJuYmYiOiIxNjEwMzUxODI4Ljk4MzE0MCIsImV4cCI6IjE2MTAzNTU0MjguOTgzMTQwIiwidWlkIjoiMSJ9.Ec0dm8VTzdA9yZe2QoatnXm7Xy8AOzvwdB-jJssvrlE');
+        $token = $this->jwt->parseToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QuY29vbGNoYXQuY29tIiwiYXVkIjoiaHR0cHM6Ly90ZXN0LWF1dGguY29vbGNoYXQuY29tIiwiaWF0IjoiMTYxMDM1MTgyOC45ODMxNDAiLCJuYmYiOiIxNjEwMzUxODI4Ljk4MzE0MCIsImV4cCI6IjE2MTAzNTU0MjguOTgzMTQwIiwidWlkIjoiMSJ9.Ec0dm8VTzdA9yZe2QoatnXm7Xy8AOzvwdB-jJssvrlE');
         
        $this->assertNotNull($token); 
     }
@@ -47,9 +53,8 @@ class ExampleTest extends TestCase
      * @return void
      */
     public function testTokenExpirationValidation() {
-        $jwt = new SimpleJWT();
-        $token = $jwt->parseToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QuY29vbGNoYXQuY29tIiwiYXVkIjoiaHR0cHM6Ly90ZXN0LWF1dGguY29vbGNoYXQuY29tIiwiaWF0Ijo5NDY2ODQ4MDAsIm5iZiI6OTQ2Njg0ODAwLCJleHAiOjk0NjY4ODQwMCwidWlkIjoiMSJ9.x-bsaxZyF-0JUjnKtIHQ4BNfQrmiaYLP6s22CIfR3hs');
-        $is_valid = $jwt->isValid($token);
+        $token = $this->jwt->parseToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QuY29vbGNoYXQuY29tIiwiYXVkIjoiaHR0cHM6Ly90ZXN0LWF1dGguY29vbGNoYXQuY29tIiwiaWF0Ijo5NDY2ODQ4MDAsIm5iZiI6OTQ2Njg0ODAwLCJleHAiOjk0NjY4ODQwMCwidWlkIjoiMSJ9.x-bsaxZyF-0JUjnKtIHQ4BNfQrmiaYLP6s22CIfR3hs');
+        $is_valid = $this->jwt->isValid($token);
 
         $this->assertFalse($is_valid);
     }
